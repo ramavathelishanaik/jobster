@@ -1,24 +1,34 @@
-import logo from './logo.svg';
-import './App.css';
+import { Route, Routes } from 'react-router-dom';
+import { Landing, Register, Error, ProtectedRoutes } from './pages';
+import {
+  Alljobs,
+  Stats,
+  Profile,
+  Addjob,
+  SharedDashboardLayout,
+} from './pages/Dashboard';
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <Routes>
+      <Route
+        path='/'
+        element={
+          <ProtectedRoutes>
+            <SharedDashboardLayout />
+          </ProtectedRoutes>
+        }
+      >
+        <Route index element={<Stats />} />
+        <Route path='all-jobs' element={<Alljobs />} />
+        <Route path='add-job' element={<Addjob />} />
+        <Route path='profile' element={<Profile />} />
+      </Route>
+
+      <Route path='landing' element={<Landing />} />
+      <Route path='register' element={<Register />} />
+      <Route path='*' element={<Error />} />
+    </Routes>
   );
 }
 

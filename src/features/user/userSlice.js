@@ -1,11 +1,19 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { toast } from 'react-toastify';
-import customFetch from '../../utils/axios';
 import {
   addUserToLocalStroage,
   getUserDataFromLocalStroage,
-  removeUserFromLocalStroage
+  removeUserFromLocalStroage,
 } from '../../utils/localStroage';
+
+import {
+  registerUserThunk,
+  loginUserThunk,
+  updateUserThunk,
+  clearStoreThunk
+} from './userThunk';
+
+
 
 const initialState = {
   isLoading: false,
@@ -15,47 +23,14 @@ const initialState = {
 
 export const registerUser = createAsyncThunk(
   'user/registerUser',
-  async (user, thunkAPI) => {
-    try {
-      const response = await customFetch.post('/auth/register', user);
-      return response.data;
-    } catch (error) {
-      return thunkAPI.rejectWithValue(error.response.data.msg);
-    }
-  }
+  registerUserThunk
 );
 
-export const loginUser = createAsyncThunk(
-  'user/loginUser',
-  async (user, thunkAPI) => {
-    try {
-      const response = await customFetch.post('/auth/login', user);
-      return response.data;
-    } catch (error) {
-      return thunkAPI.rejectWithValue(error.response.data.msg);
-    }
-  }
-);
+export const loginUser = createAsyncThunk('user/loginUser', loginUserThunk);
 
-export const updateUser = createAsyncThunk(
-  'user/updateUser',
-  async (user, thunkAPI) => {
-    try {
-      const resp = await customFetch.patch('/auth/updateUser', user, {
-        headers: {
-          authorization: `Bearer ${thunkAPI.getState().user.user.token}`,
-        },
-      });
-      return resp.data;
-    } catch (error) {
-      if (error.response.status === 401) {
-        thunkAPI.dispatch(logoutUser());
-        return thunkAPI.rejectWithValue('Unauthorized! Logging Out...');
-      }
-      return thunkAPI.rejectWithValue(error.response.data.msg);
-    }
-  }
-);
+export const updateUser = createAsyncThunk('user/updateUser', updateUserThunk);
+
+export const clearStore = createAsyncThunk('user/clearStore', clearStoreThunk);
 
 const userSlice = createSlice({
   name: 'user',
@@ -64,14 +39,13 @@ const userSlice = createSlice({
     toggleSidebar: (state) => {
       state.isSidebarOpen = !state.isSidebarOpen;
     },
-    logoutUser:(state,{payload})=>{
+    logoutUser: (state, { payload }) => {
       state.user = null;
-      state.isSidebarOpen= false;
+      state.isSidebarOpen = false;
       removeUserFromLocalStroage();
-      if(payload){
-        toast.success(payload)
+      if (payload) {
+        toast.success(payload);
       }
-
     },
   },
   extraReducers: (builder) => {
@@ -123,9 +97,13 @@ const userSlice = createSlice({
       .addCase(updateUser.rejected, (state, { payload }) => {
         state.isLoading = false;
         toast.error(payload);
+      })
+      .addCase(clearStore.rejected, (state, { payload }) => {
+        toast.error('There was an error');
       });
+    
   },
 });
 
-export const { toggleSidebar,logoutUser } = userSlice.actions;
+export const { toggleSidebar, logoutUser } = userSlice.actions;
 export default userSlice.reducer;

@@ -3344,6 +3344,10 @@ reducers:{
 
 userThunk.js
 
+
+
+
+
 ```js
 import { logoutUser } from './userSlice';
 import { clearAllJobsState } from '../allJobs/allJobsSlice';

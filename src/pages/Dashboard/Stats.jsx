@@ -13,6 +13,7 @@ const Stats = () => {
 
   useEffect(() => {
     dispatch(showStats());
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   if (isLoading) {
